@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Auto Tab Fullscreen Demo</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+#overlay{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+}
+
+button{
+    padding:20px 30px;
+    font-size:20px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="overlay">
+    <h1>Auto Tab + Fullscreen Demo</h1>
+    <p>If fullscreen or tabs are blocked, click start once.</p>
+    <button onclick="startEverything()">Start Demo</button>
+</div>
+
+<script>
+let tabs = [];
+const OPEN_COUNT = 5;
+const MIN_TABS = 3;
+
+/* Attempt fullscreen automatically */
+function tryFullscreen(){
+    const el = document.documentElement;
+
+    if(el.requestFullscreen){
+        el.requestFullscreen().catch(()=>{});
+    }
+}
+
+/* Open multiple tabs */
+function openTabs(){
+    for(let i=0;i<OPEN_COUNT;i++){
+        let t = window.open(window.location.href, "_blank");
+
+        if(t){
+            tabs.push(t);
+        }
+    }
+}
+
+/* Monitor closed tabs */
+function monitorTabs(){
+    setInterval(()=>{
+        tabs = tabs.filter(t => t && !t.closed);
+
+        if(tabs.length < MIN_TABS){
+            openTabs();
+        }
+    }, 2000);
+}
+
+/* Main start function */
+function startEverything(){
+    tryFullscreen();
+    openTabs();
+    monitorTabs();
+}
+
+/* Try auto-start on load (may be blocked) */
+window.onload = () => {
+    tryFullscreen();
+
+    // Attempt to open automatically
+    setTimeout(()=>{
+        openTabs();
+        monitorTabs();
+    }, 500);
+};
+</script>
+
+</body>
+</html>
